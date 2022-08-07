@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # django-insecure-x0m$u*ctl-dxmf$wn+s&9lsat$4tj3p-y=k+42u7327feu3omm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 # (os.environ.get('DEBUG_VALUE') == 'True')
 
 ALLOWED_HOSTS = [
