@@ -26,7 +26,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # django-insecure-x0m$u*ctl-dxmf$wn+s&9lsat$4tj3p-y=k+42u7327feu3omm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = (os.environ.get('DEBUG_VALUE') == 'True')
+DEBUG = True#(os.environ.get('DEBUG_VALUE') == 'True')
 # (os.environ.get('DEBUG_VALUE') == 'True')
 
 ALLOWED_HOSTS = [
@@ -141,7 +141,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'https://mceazy2700.github.io',
-    'https://www.vice.codes/'
+    'https://www.vice.codes'
 ]
 
 # CLOUDINARY
