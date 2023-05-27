@@ -12,7 +12,8 @@ cloudinary.config(
 )
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://www.vice.codes"
 ]
 
 class Setting:
