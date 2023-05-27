@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, List, Optional, Self
 from graphql import GraphQLError
 from sqlmodel import Field, Relationship, SQLModel, Session, col, select
 from common.model_links import ImageProjectLink
-from common.types import PageOptions
+from common.types import PageOptions, TotalList
 
 from projects.types import ProjectInput
 from common.utils.graphql import model_to_graphql
@@ -43,10 +43,12 @@ class Project(SQLModel, table=True):
         return project
 
     @classmethod
-    def filter(cls, session: Session, options: Optional[PageOptions]=None) -> List[Self]:
+    def filter(cls, session: Session, options: Optional[PageOptions]=None) -> TotalList[Self]:
         stmt = select(cls)
+        total = len(session.exec(stmt).all())
         if options: stmt.offset(options.offset).limit(options.limit)
-        return session.exec(stmt).all()
+        projects = session.exec(stmt).all()
+        return TotalList(total=total, values=projects)
 
     @classmethod
     def get(cls, session: Session, id: int) -> Self:

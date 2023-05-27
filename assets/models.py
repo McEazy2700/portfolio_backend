@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, List, Optional, Self
 from graphql import GraphQLError
 from sqlmodel import Field, Relationship, SQLModel, Session, col, select
-from cloudinary.uploader import upload, upload_image
+from cloudinary.uploader import upload_image
 from common.model_links import ImageProjectLink
 
 from assets.types import ImageInput, ImageFilter
@@ -51,10 +51,10 @@ class Image(SQLModel, table=True):
     def filter(cls, session: Session, options: Optional[PageOptions[ImageFilter]]=None) -> TotalList[Self]:
         stmt = select(cls)
         total = len(session.exec(stmt).all())
-        if options:
-            stmt = stmt.limit(options.limit).offset(options.offset)
-            if options.filter: stmt = stmt\
-                    .where(col(cls.description).contains(options.filter.description))
+        if options: stmt = stmt.limit(options.limit).offset(options.offset)
+        if options and options.filter and options.filter.description:
+            stmt = stmt\
+                .where(col(cls.description).contains(options.filter.description))
         values = session.exec(stmt).all()
         return TotalList(total=total, values=values)
 
