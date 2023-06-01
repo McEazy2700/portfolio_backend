@@ -15,7 +15,7 @@ class ProjectType:
 
 @strawberry.input
 class ProjectInput:
-    id: Optional[strawberry.ID] = None
+    id: Optional[int] = None
     title: Optional[str] = None
     description: Optional[str] = None
     image_ids: Optional[List[int]] = None

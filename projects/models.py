@@ -43,6 +43,19 @@ class Project(SQLModel, table=True):
         return project
 
     @classmethod
+    def update(cls, session: Session, input: ProjectInput) -> Self:
+        if not input.id:
+            raise GraphQLError("Id is required for project update")
+        project = cls.get(session, id=input.id)
+        for key, value in input.__dict__.items():
+            if value is not None:
+                setattr(project, key, value)
+        session.add(project)
+        session.commit()
+        session.refresh(project)
+        return project
+
+    @classmethod
     def filter(cls, session: Session, options: Optional[PageOptions]=None) -> TotalList[Self]:
         stmt = select(cls)
         total = len(session.exec(stmt).all())
