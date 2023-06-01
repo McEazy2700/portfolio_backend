@@ -46,7 +46,7 @@ def authenticate(authorization: str) -> UserType:
         algorithms=[Setting().HASHING_ALGORITHIM])
     )
     token_id = decoded.get("token_id")
-    assert token_id, AuthenticationError("Authentication failed; token_id not found")
+    assert token_id, AuthenticationError("Authentication failed: token_id not found")
     with Session(Setting().DB_ENGINE) as session:
         token = Token.get(session=session, token_id=int(token_id))
         return token.user.gql()
