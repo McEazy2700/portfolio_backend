@@ -49,6 +49,7 @@ class Project(SQLModel, table=True):
         project = cls.get(session, id=input.id)
         for key, value in input.__dict__.items():
             if key != "image_ids" and value is not None:
+                print(key, value)
                 setattr(project, key, value)
         if input.image_ids and len(input.image_ids) > 0:
             stmt = select(Image).where(col(Image.id).in_(input.image_ids))
@@ -73,7 +74,7 @@ class Project(SQLModel, table=True):
 
     def gql(self) -> "ProjectType":
         from .types import ProjectType
-        fields = ["id", "title", "description", "date_added", "images"]
+        fields = ["id", "title", "description", "date_added", "images", "github", "live_url"]
         return model_to_graphql(ProjectType, self, fields)
 
 from assets.models import Image
