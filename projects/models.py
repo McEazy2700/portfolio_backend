@@ -48,8 +48,11 @@ class Project(SQLModel, table=True):
             raise GraphQLError("Id is required for project update")
         project = cls.get(session, id=input.id)
         for key, value in input.__dict__.items():
-            if value is not None:
+            if key != "image_ids" and value is not None:
                 setattr(project, key, value)
+        if input.image_ids and len(input.image_ids) > 0:
+            stmt = select(Image).where(col(Image.id).in_(input.image_ids))
+            project.images = session.exec(stmt).all()
         session.add(project)
         session.commit()
         session.refresh(project)
