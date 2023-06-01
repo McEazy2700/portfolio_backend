@@ -4,7 +4,7 @@ import strawberry
 
 @strawberry.type
 class ProjectType:
-    id: strawberry.ID
+    id: int
     title: str
     github: Optional[str] = None
     live_url: Optional[str] = None
