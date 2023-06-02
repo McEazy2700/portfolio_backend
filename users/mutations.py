@@ -29,6 +29,8 @@ class UserMutations:
     def login(self, input: LoginInput) -> Success[Login]:
         with Session(Setting.DB_ENGINE) as session:
             user = User.get(session=session, email=input.email)
+            # Whats happening here
+            print("We got here")
             assert user.passwd_hash, GraphQLError("password login not found. Try Google login")
             if bcrypt.checkpw(input.password.encode(), str(user.passwd_hash).encode()):
                 token = generate_token(session=session, user=user)
