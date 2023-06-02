@@ -1,6 +1,4 @@
 from typing import List, Type, TypeVar
-from pprint import pprint
-
 from sqlmodel import SQLModel
 
 

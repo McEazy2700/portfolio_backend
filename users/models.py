@@ -4,7 +4,7 @@ from graphql import GraphQLError
 from sqlmodel import Field, Relationship, SQLModel, Session, select
 from common.utils.graphql import model_to_graphql
 
-from users.types import ResgisterInput, TokenType
+from users.types import ResgisterInput
 
 if TYPE_CHECKING:
     from assets.models import Image
@@ -77,36 +77,7 @@ class Token(SQLModel, table=True):
             back_populates="tokens",
             sa_relationship_kwargs=dict(foreign_keys="[Token.user_id]"))
 
-    session: ClassVar[Session]
-
     @classmethod
-    def get(cls, session: Session, token_id: int) -> Self:
-        cls.session = session
-        stmt = select(cls).where(cls.id==token_id)
-        token = session.exec(stmt).one()
-        return token
-
-    @classmethod
-    def new(cls, session: Session, user: User) -> Self:
-        cls.session = session
-        assert user.id, GraphQLError("User id is required to create token")
-        token = cls(user_id=user.id)
-        session.add(token)
-        session.commit()
-        session.refresh(token)
-        return token
-
-    def delete(self):
-        self.session.delete(self)
-        self.session.commit()
-
-    def set_tokens(self, token: str, refresh_token: str) -> Self:
-        self.token = token
-        self.refresh_token = refresh_token
-        self.session.commit()
-        self.session.refresh(self)
-        return self
-
-    def gql(self) -> TokenType:
-        fields = ["token", "refresh_token", "user"]
-        return model_to_graphql(TokenType, self, fields)
+    def objects(cls, session: Session):
+        from users.managers.token_manager import TokenManager
+        return TokenManager(session)

@@ -3,6 +3,7 @@ import jwt
 from datetime import datetime, timezone
 from sqlmodel import Session
 from core.settings import Setting
+from users.managers.token_manager import TokenManager
 from users.models import Token, User
 from users.types import UserType
 
@@ -10,20 +11,20 @@ from users.types import UserType
 class AuthenticationError(Exception):
     pass
 
-def generate_token(session: Session, user: User) -> Token:
-    token = Token.new(session=session, user=user)
+def generate_token(session: Session, user: User) -> TokenManager:
+    token = Token.objects(session=session).new(user=user)
     payload = {
-        "token_id": token.id,
+        "token_id": token.value().id,
         "iss": Setting().TOKEN_ISSUER,
         "iat": datetime.now(tz=timezone.utc)
     }
     token_payload = {
             **payload,
-            "exp": datetime.now(tz=timezone.utc) + Setting().TOKEN_VALIDITY_DURATION
+            "exp": datetime.now(tz=timezone.utc) + Setting.TOKEN_VALIDITY_DURATION
         }
     refresh_token_payload = {
             **payload,
-            "exp": datetime.now(tz=timezone.utc) + Setting().REFRESH_TOKEN_VALIDIT_DURATION
+            "exp": datetime.now(tz=timezone.utc) + Setting.REFRESH_TOKEN_VALIDIT_DURATION
         }
     token_str = jwt.encode(
             {**token_payload, },
@@ -53,5 +54,5 @@ def authenticate(authorization: str) -> UserType:
     token_id = decoded.get("token_id")
     assert token_id, AuthenticationError("Authentication failed: token_id not found")
     with Session(Setting.DB_ENGINE) as session:
-        token = Token.get(session=session, token_id=int(token_id))
-        return token.user.gql()
+        token = Token.objects(session=session).get(token_id=int(token_id))
+        return token.value().user.gql()

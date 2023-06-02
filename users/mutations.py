@@ -1,7 +1,6 @@
-from pprint import pprint
 import bcrypt
 from graphql import GraphQLError
-from sqlmodel import Session, select
+from sqlmodel import Session
 import strawberry
 from common.types import Success
 from core.settings import Setting
@@ -29,13 +28,12 @@ class UserMutations:
     def login(self, input: LoginInput) -> Success[Login]:
         with Session(Setting.DB_ENGINE) as session:
             user = User.get(session=session, email=input.email)
-            # Whats happening here
-            print("We got here")
             assert user.passwd_hash, GraphQLError("password login not found. Try Google login")
             if bcrypt.checkpw(input.password.encode(), str(user.passwd_hash).encode()):
                 token = generate_token(session=session, user=user)
-                assert token.token and token.refresh_token, GraphQLError("failed to generate token")
-                login_data = Login(token=token.token, refresh_token=token.refresh_token, user=user.gql())
+                assert (token.value().token and token.value().refresh_token), GraphQLError("failed to generate token")
+                token_gql = token.gql()
+                login_data = Login(token=token_gql.token, refresh_token=token_gql.refresh_token, user=user.gql())
                 return Success(success=True, data=login_data)
             raise GraphQLError("Please enter valid details")
 
@@ -46,7 +44,7 @@ class UserMutations:
             decoded = decode_token(refresh_token)
             token_id = decoded.get("token_id")
             assert token_id, GraphQLError("Authentication failded: missing token_id")
-            old_token = Token.get(session, token_id=int(token_id))
-            new_token = generate_token(session, user=old_token.user)
+            old_token = Token.objects(session).get(token_id=int(token_id))
+            new_token = generate_token(session, user=old_token.value().user)
             old_token.delete()
             return Success(success=True, data=new_token.gql())
