@@ -46,4 +46,8 @@ class TokenManager(ModelManager):
         return self.__value
 
     def gql(self) -> TokenType:
+        self.__value.user
+        self.__value.user.profile
+        if self.__value.user.profile:
+            self.__value.user.profile.image
         return model_to_graphql(TokenType, self.__value, self.fields)
