@@ -1,6 +1,7 @@
 import bcrypt
 from typing import TYPE_CHECKING, ClassVar, List, Optional, Self
 from graphql import GraphQLError
+from pydantic.decorator import validator
 from sqlmodel import Field, Relationship, SQLModel, Session, select
 from common.utils.graphql import model_to_graphql
 
@@ -18,6 +19,12 @@ class User(SQLModel, table=True):
     profile: Optional["Profile" ] = Relationship(
             back_populates="user",
             sa_relationship_kwargs=dict(uselist=False))
+
+    @validator("email")
+    def validate_email(cls, values):
+        email = values.get("email")
+        if "@" not in str(email) or str(email).split(".").pop() != "com":
+            raise GraphQLError("invalid email")
 
     @classmethod
     def get(cls, session: Session, id: int|None=None, email: str|None=None) -> Self:
