@@ -1,7 +1,5 @@
-from typing import Optional, Union
+from typing import Optional
 import strawberry
-
-from common.types import Error, Success
 
 @strawberry.input
 class ResgisterInput:
@@ -38,6 +36,13 @@ class UserType:
     id: int
     email: str
     profile: ProfileType
+
+
+@strawberry.type
+class TokenType:
+    token: str
+    refresh_token: str
+    user: UserType
 
 
 from assets.types import ImageType

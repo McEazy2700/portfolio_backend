@@ -1,3 +1,4 @@
+from typing import Any
 import jwt
 from datetime import datetime, timezone
 from sqlmodel import Session
@@ -34,19 +35,23 @@ def generate_token(session: Session, user: User) -> Token:
             Setting().SECRET_KEY,
             algorithm=Setting().HASHING_ALGORITHIM
         )
-    token = token.set_tokens(session=session, token=token_str, refresh_token=refresh_token)
+    token = token.set_tokens(token=token_str, refresh_token=refresh_token)
     return token
 
 
-def authenticate(authorization: str) -> UserType:
-    decoded = dict(jwt.decode(
-        authorization,
-        Setting().SECRET_KEY,
-        issuer=Setting().TOKEN_ISSUER,
-        algorithms=[Setting().HASHING_ALGORITHIM])
+def decode_token(token: str) -> dict[str, Any]:
+    return dict(jwt.decode(
+        token,
+        Setting.SECRET_KEY,
+        issuer=Setting.TOKEN_ISSUER,
+        algorithms=[Setting.HASHING_ALGORITHIM])
     )
+
+
+def authenticate(authorization: str) -> UserType:
+    decoded = decode_token(authorization)
     token_id = decoded.get("token_id")
     assert token_id, AuthenticationError("Authentication failed: token_id not found")
-    with Session(Setting().DB_ENGINE) as session:
+    with Session(Setting.DB_ENGINE) as session:
         token = Token.get(session=session, token_id=int(token_id))
         return token.user.gql()
