@@ -21,9 +21,8 @@ class User(SQLModel, table=True):
             sa_relationship_kwargs=dict(uselist=False))
 
     @validator("email")
-    def validate_email(cls, values):
-        email = values.get("email")
-        if "@" not in str(email) or str(email).split(".").pop() != "com":
+    def validate_email(cls, value:str):
+        if "@" not in value or value.split(".").pop() != "com":
             raise GraphQLError("invalid email")
 
     @classmethod
