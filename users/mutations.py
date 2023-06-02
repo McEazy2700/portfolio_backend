@@ -13,7 +13,9 @@ from users.utils import generate_token
 @strawberry.type
 class UserMutations:
     @strawberry.field
-    def register(self, input: ResgisterInput) -> Success[UserType]:
+    def register(self, input: ResgisterInput, secret_code: str) -> Success[UserType]:
+        if secret_code != Setting.SECRET_CODE:
+            raise GraphQLError("Invalid code")
         with Session(Setting().DB_ENGINE) as session:
             if input.password_1 == input.password_2:
                 user = User.new(session=session, input=input)\

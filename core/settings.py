@@ -11,11 +11,6 @@ cloudinary.config(
   secure = True
 )
 
-origins = [
-    "http://localhost:3000",
-    "https://www.vice.codes"
-]
-
 class Setting:
     DB_URL = str(config("DB_URL"))
     DB_ENGINE = create_engine(DB_URL)
@@ -24,4 +19,6 @@ class Setting:
     TOKEN_VALIDITY_DURATION = timedelta(minutes=5)
     REFRESH_TOKEN_VALIDIT_DURATION = timedelta(minutes=10)
     HASHING_ALGORITHIM = "HS256"
-    CORS_ALLOWED_ORIGINS = origins
+    CORS_ALLOWED_ORIGINS = list(str(config("CORS_ALLOWED_ORIGINS")).split(","))
+    SECRET_CODE = str(config("SECRET_CODE"))
+
