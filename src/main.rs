@@ -2,11 +2,13 @@ use actix_web::{get, middleware, post, web, App, HttpResponse, HttpServer, Resul
 use async_graphql::http::{graphiql_plugin_explorer, GraphiQLSource};
 use async_graphql_actix_web::{GraphQLRequest, GraphQLResponse};
 use dotenv::dotenv;
+use log::info;
 use migration::{Migrator, MigratorTrait};
 
 use crate::config::{
     database::DB,
     schema::{build_schema, AppSchema},
+    settings::Settings,
 };
 pub mod config;
 
@@ -42,6 +44,11 @@ async fn main() -> std::io::Result<()> {
     Migrator::up(&db_conn, None)
         .await
         .expect("Database migration failed");
+    info!(
+        "Server running on http://{}:{}",
+        Settings::ip_address(),
+        Settings::port()
+    );
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(db_conn.clone()))
@@ -50,7 +57,7 @@ async fn main() -> std::io::Result<()> {
             .service(graphiql)
             .service(execute_query)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((Settings::ip_address(), Settings::port()))?
     .run()
     .await
 }
